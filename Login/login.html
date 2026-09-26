@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 30px;
+        }
+        form {
+            margin-bottom: 15px;
+        }
+        label {
+            margin-right: 5px;
+        }
+        input {
+            padding: 4px 6px;
+            margin-right: 15px;
+        }
+        button {
+            padding: 4px 12px;
+            cursor: pointer;
+        }
+        a {
+            display: block;
+            margin-top: 10px;
+            color: blue;
+            text-decoration: underline;
+        }
+        #message {
+            margin-top: 10px;
+            font-weight: normal;
+        }
+        .error {
+            color: red;
+        }
+        .success {
+            color: green;
+        }
+    </style>
+</head>
+<body>
+    <form id="loginForm">
+        <label for="email">Enter your email:</label>
+        <input type="email" id="email" name="email" required>
+
+        <label for="password">Enter your password:</label>
+        <input type="password" id="password" name="password" required>
+
+        <button type="submit">Login</button>
+    </form>
+
+    <a href="../Signup/signup.html">New User - Signup</a>
+    <div id="message"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="login.js"></script>
+</body>
+</html>

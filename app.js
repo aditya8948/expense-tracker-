@@ -3,17 +3,30 @@ const path = require("path");
 const cors = require("cors");
 const sequelize = require("./util/database");
 const expenseRoute = require("./routes/expenseRoute");
+const userRoute = require("./routes/userRoute");
+
+// Models
+const Expense = require("./models/expense");
+const User = require("./models/user");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static files
+app.use(express.static(__dirname));
 app.use(express.static(path.join(__dirname, "public")));
 
+// API Routes
+app.use("/user", userRoute);
 app.use("/api/expenses", expenseRoute);
+app.use("/expense", expenseRoute);
 
+// Default redirect to Login
 app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, "views", "index.html"));
+    res.redirect("/Login/login.html");
 });
 
 sequelize
@@ -24,5 +37,7 @@ sequelize
         });
     })
     .catch((err) => {
-        console.log(err);
+        console.error("Database connection error:", err);
     });
+
+module.exports = app;

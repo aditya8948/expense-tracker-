@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/aditya8948/expense-tracker-#readme",
   "dependencies": {
+    "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "mysql2": "^3.24.4",
