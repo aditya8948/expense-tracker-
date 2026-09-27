@@ -20,6 +20,10 @@ const Expense = sequelize.define("expense", {
         type: Sequelize.STRING,
         allowNull: false,
     },
+    userId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+    },
 });
 
 module.exports = Expense;

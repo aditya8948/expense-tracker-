@@ -1,5 +1,4 @@
-const bcrypt = require("bcryptjs");
-const User = require("../models/user");
+const userService = require("../services/userService");
 
 exports.postSignup = async (req, res) => {
     try {
@@ -9,17 +8,12 @@ exports.postSignup = async (req, res) => {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        const existingUser = await User.findOne({ where: { email } });
+        const existingUser = await userService.findUserByEmail(email);
         if (existingUser) {
             return res.status(409).json({ message: "User already exists, Please Login" });
         }
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        await User.create({
-            name,
-            email,
-            password: hashedPassword,
-        });
+        await userService.createUser({ name, email, password });
 
         res.status(201).json({ message: "Successfuly signed up" });
     } catch (err) {
@@ -35,17 +29,21 @@ exports.postLogin = async (req, res) => {
             return res.status(400).json({ message: "Email and password are required" });
         }
 
-        const user = await User.findOne({ where: { email } });
+        const user = await userService.findUserByEmail(email);
         if (!user) {
             return res.status(404).json({ message: "User doesn't exist" });
         }
 
-        const isMatch = (await bcrypt.compare(password, user.password)) || (password === user.password);
+        const isMatch = await userService.verifyPassword(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: "Incorrect password" });
         }
 
-        res.status(200).json({ message: "User login successful" });
+        res.status(200).json({
+            message: "User login successful",
+            userId: user.id,
+            isPremiumUser: !!user.isPremiumUser,
+        });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

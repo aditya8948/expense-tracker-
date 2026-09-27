@@ -22,7 +22,7 @@ form.addEventListener("submit", async (e) => {
             messageDiv.className = "success";
             messageDiv.innerText = response.data.message;
             alert(response.data.message);
-            window.location.href = "../Login/login.html";
+            window.location.href = "/login";
         }
     } catch (err) {
         messageDiv.className = "error";

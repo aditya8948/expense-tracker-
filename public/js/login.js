@@ -21,10 +21,13 @@ form.addEventListener("submit", async (e) => {
             messageDiv.innerText = response.data.message;
             alert(response.data.message);
 
-            // Deliverable 2 (Hint 1): Set authentication state and redirect to Expense app
             localStorage.setItem("isLoggedIn", "true");
             localStorage.setItem("userEmail", email);
-            window.location.href = "../Expense/expense.html";
+            if (response.data.userId) {
+                localStorage.setItem("userId", response.data.userId);
+            }
+            localStorage.setItem("isPremiumUser", response.data.isPremiumUser ? "true" : "false");
+            window.location.href = "/expense";
         }
     } catch (err) {
         messageDiv.className = "error";

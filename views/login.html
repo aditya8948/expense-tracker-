@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Signup</title>
+    <title>Login</title>
     <style>
         * {
             box-sizing: border-box;
@@ -90,13 +90,8 @@
 </head>
 <body>
     <div class="container">
-        <h2>Signup</h2>
-        <form id="signupForm">
-            <div class="form-group">
-                <label for="name">Enter your name:</label>
-                <input type="text" id="name" name="name" placeholder="Full name" required>
-            </div>
-
+        <h2>Login</h2>
+        <form id="loginForm">
             <div class="form-group">
                 <label for="email">Enter your email:</label>
                 <input type="email" id="email" name="email" placeholder="Email address" required>
@@ -107,14 +102,14 @@
                 <input type="password" id="password" name="password" placeholder="Password" required>
             </div>
 
-            <button type="submit">Signup</button>
+            <button type="submit">Login</button>
         </form>
 
-        <a class="link-text" href="../Login/login.html">Existing User - Login</a>
+        <a class="link-text" href="/signup">New User - Signup</a>
         <div id="message"></div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script src="signup.js"></script>
+    <script src="/js/login.js"></script>
 </body>
 </html>
