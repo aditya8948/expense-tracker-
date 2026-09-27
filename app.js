@@ -4,10 +4,16 @@ const cors = require("cors");
 const sequelize = require("./util/database");
 const expenseRoute = require("./routes/expenseRoute");
 const userRoute = require("./routes/userRoute");
+const purchaseRoute = require("./routes/purchaseRoute");
 
 // Models
 const Expense = require("./models/expense");
 const User = require("./models/user");
+const Order = require("./models/order");
+
+// Associations
+User.hasMany(Order);
+Order.belongsTo(User);
 
 const app = express();
 
@@ -23,6 +29,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/user", userRoute);
 app.use("/api/expenses", expenseRoute);
 app.use("/expense", expenseRoute);
+app.use("/purchase", purchaseRoute);
 
 // Default redirect to Login
 app.get("/", (req, res) => {

@@ -79,3 +79,44 @@ async function deleteExpense(id) {
         alert("Failed to delete expense");
     }
 }
+
+// Buy Premium Membership - Cashfree Integration
+const buyPremiumBtn = document.getElementById("buyPremiumBtn");
+
+buyPremiumBtn.addEventListener("click", async () => {
+    const email = localStorage.getItem("userEmail");
+
+    try {
+        // Step 1: Call backend to create order on Cashfree
+        const response = await axios.post("/purchase/premiummembership", { email });
+        const { orderId, paymentSessionId } = response.data;
+
+        // Step 2: Initialize Cashfree in sandbox mode
+        const cashfree = Cashfree({ mode: "sandbox" });
+
+        // Step 3: Open checkout modal
+        cashfree.checkout({
+            paymentSessionId: paymentSessionId,
+            redirectTarget: "_modal",
+        }).then(async function () {
+            // Step 4: After modal closes, verify payment status from backend
+            try {
+                const updateRes = await axios.post("/purchase/updatetransactionstatus", {
+                    orderId: orderId,
+                    email: email,
+                });
+
+                if (updateRes.data.isPremiumUser) {
+                    alert("Transaction successful");
+                } else {
+                    alert("TRANSACTION FAILED");
+                }
+            } catch (err) {
+                alert("TRANSACTION FAILED");
+            }
+        });
+    } catch (err) {
+        console.error("Error initiating payment:", err);
+        alert("TRANSACTION FAILED");
+    }
+});
