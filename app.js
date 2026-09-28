@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const path = require("path");
 const cors = require("cors");
@@ -6,6 +7,7 @@ const expenseRoute = require("./routes/expenseRoute");
 const userRoute = require("./routes/userRoute");
 const purchaseRoute = require("./routes/purchaseRoute");
 const premiumRoute = require("./routes/premiumRoute");
+const aiRoute = require("./routes/aiRoute");
 
 const Expense = require("./models/expense");
 const User = require("./models/user");
@@ -58,6 +60,7 @@ app.use("/api/expenses", expenseRoute);
 app.use("/expense", expenseRoute);
 app.use("/purchase", purchaseRoute);
 app.use("/premium", premiumRoute);
+app.use("/ai", aiRoute);
 
 sequelize
     .sync()

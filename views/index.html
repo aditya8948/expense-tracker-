@@ -152,6 +152,38 @@
             background-color: #0069d9;
         }
 
+        .category-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .category-row select {
+            flex: 1;
+        }
+
+        .ai-btn {
+            padding: 8px 14px;
+            cursor: pointer;
+            background-color: #6f42c1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            white-space: nowrap;
+            transition: background-color 0.2s ease;
+        }
+
+        .ai-btn:hover {
+            background-color: #5a32a3;
+        }
+
+        .ai-btn:disabled {
+            background-color: #a389d4;
+            cursor: not-allowed;
+        }
+
         h3 {
             margin-top: 25px;
             margin-bottom: 12px;
@@ -201,29 +233,8 @@
             background-color: #c82333;
         }
 
-        .leaderboard-section {
-            margin-top: 35px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
-        }
-
-        .leaderboard-section h2 {
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .leaderboard-list {
-            list-style-type: disc;
-            padding-left: 25px;
-            margin: 0;
-        }
-
-        .leaderboard-list li {
-            font-size: 15px;
-            color: #222;
-            margin-bottom: 8px;
-            line-height: 1.5;
+        .leaderboard-container {
+            margin-top: 30px;
         }
     </style>
 </head>
@@ -253,15 +264,18 @@
 
             <div class="form-group">
                 <label for="category">Choose a category:</label>
-                <select id="category" name="category" required>
-                    <option value="Food">Food</option>
-                    <option value="Petrol">Petrol</option>
-                    <option value="Salary">Salary</option>
-                    <option value="Movie">Movie</option>
-                    <option value="Shopping">Shopping</option>
-                    <option value="Bills">Bills</option>
-                    <option value="Other">Other</option>
-                </select>
+                <div class="category-row">
+                    <select id="category" name="category" required>
+                        <option value="Food">Food</option>
+                        <option value="Petrol">Petrol</option>
+                        <option value="Salary">Salary</option>
+                        <option value="Movie">Movie</option>
+                        <option value="Shopping">Shopping</option>
+                        <option value="Bills">Bills</option>
+                        <option value="Other">Other</option>
+                    </select>
+                    <button type="button" id="suggestCategoryBtn" class="ai-btn">AI Suggest</button>
+                </div>
             </div>
 
             <button type="submit" id="addExpenseBtn" class="submit-btn">Add Expense</button>
@@ -281,10 +295,19 @@
             </tbody>
         </table>
 
-        <div id="leaderboardSection" class="leaderboard-section" style="display: none;">
-            <h2>Leader Board</h2>
-            <ul id="leaderboardList" class="leaderboard-list">
-            </ul>
+        <div id="leaderboardSection" class="leaderboard-container" style="display: none;">
+            <h3>Leader Board</h3>
+            <table id="leaderboardTable">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Name</th>
+                        <th>Total Expense</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardTableBody">
+                </tbody>
+            </table>
         </div>
     </div>
 

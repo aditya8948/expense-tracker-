@@ -1,3 +1,4 @@
+
 if (localStorage.getItem("isLoggedIn") !== "true") {
     alert("Please login to access the Expense Tracker");
     window.location.href = "/login";
@@ -202,22 +203,61 @@ buyPremiumBtn.addEventListener("click", async () => {
 
 const showLeaderboardBtn = document.getElementById("showLeaderboardBtn");
 const leaderboardSection = document.getElementById("leaderboardSection");
-const leaderboardList = document.getElementById("leaderboardList");
+const leaderboardTableBody = document.getElementById("leaderboardTableBody");
 
 if (showLeaderboardBtn) {
     showLeaderboardBtn.addEventListener("click", async () => {
         try {
             const response = await axios.get("/premium/showLeaderboard");
-            leaderboardList.innerHTML = "";
-            response.data.forEach((user) => {
-                const li = document.createElement("li");
-                li.textContent = `Name - ${user.name} Total Expense - ${user.total_cost || user.totalExpense || 0}`;
-                leaderboardList.appendChild(li);
-            });
-            leaderboardSection.style.display = "block";
+            if (leaderboardTableBody) {
+                leaderboardTableBody.innerHTML = "";
+                response.data.forEach((user, index) => {
+                    const tr = document.createElement("tr");
+                    tr.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${user.name}</td>
+                        <td>₹${user.total_cost || user.totalExpense || 0}</td>
+                    `;
+                    leaderboardTableBody.appendChild(tr);
+                });
+            }
+            if (leaderboardSection) {
+                leaderboardSection.style.display = "block";
+            }
         } catch (err) {
             console.error("Error loading leaderboard:", err);
             alert("Failed to load leaderboard");
+        }
+    });
+}
+
+const descriptionInput = document.getElementById("description");
+const categorySelect = document.getElementById("category");
+const suggestCategoryBtn = document.getElementById("suggestCategoryBtn");
+
+if (suggestCategoryBtn && descriptionInput && categorySelect) {
+    suggestCategoryBtn.addEventListener("click", async () => {
+        const description = descriptionInput.value.trim();
+        if (!description) {
+            alert("Please enter a description first");
+            descriptionInput.focus();
+            return;
+        }
+
+        const originalText = suggestCategoryBtn.innerText;
+        suggestCategoryBtn.innerText = "Suggesting...";
+        suggestCategoryBtn.disabled = true;
+
+        try {
+            const response = await axios.post("/ai/suggest-category", { description });
+            if (response.data && response.data.category) {
+                categorySelect.value = response.data.category;
+            }
+        } catch (err) {
+            console.error("AI category suggestion error:", err);
+        } finally {
+            suggestCategoryBtn.innerText = originalText;
+            suggestCategoryBtn.disabled = false;
         }
     });
 }
