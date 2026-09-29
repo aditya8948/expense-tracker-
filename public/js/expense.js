@@ -66,6 +66,29 @@ async function checkPremiumStatus() {
     }
 }
 
+let currentPage = 1;
+const itemsPerPage = 5;
+
+const prevBtn = document.getElementById("prevBtn");
+const nextBtn = document.getElementById("nextBtn");
+const pageInfo = document.getElementById("pageInfo");
+
+if (prevBtn) {
+    prevBtn.addEventListener("click", () => {
+        if (currentPage > 1) {
+            currentPage--;
+            fetchExpenses(currentPage);
+        }
+    });
+}
+
+if (nextBtn) {
+    nextBtn.addEventListener("click", () => {
+        currentPage++;
+        fetchExpenses(currentPage);
+    });
+}
+
 window.addEventListener("DOMContentLoaded", async () => {
     const urlParams = new URLSearchParams(window.location.search);
     const returnOrderId = urlParams.get("order_id");
@@ -88,26 +111,51 @@ window.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    await fetchExpenses();
+    await fetchExpenses(1);
     await checkPremiumStatus();
 });
 
-async function fetchExpenses() {
+async function fetchExpenses(page = currentPage) {
+    currentPage = page;
     const email = localStorage.getItem("userEmail");
     const userId = localStorage.getItem("userId");
 
     try {
         const response = await axios.get("/api/expenses", {
-            params: { email, userId },
+            params: {
+                email,
+                userId,
+                page: currentPage,
+                limit: itemsPerPage,
+            },
             headers: {
                 "user-email": email || "",
                 "user-id": userId || "",
             },
         });
+
         tableBody.innerHTML = "";
-        response.data.forEach((expense) => {
-            addExpenseToTable(expense);
-        });
+
+        const expenses = Array.isArray(response.data) ? response.data : (response.data.expenses || []);
+        const totalPages = response.data.totalPages || 1;
+
+        if (expenses.length === 0) {
+            tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #888;">No expenses found.</td></tr>`;
+        } else {
+            expenses.forEach((expense) => {
+                addExpenseToTable(expense);
+            });
+        }
+
+        if (pageInfo) {
+            pageInfo.innerText = currentPage;
+        }
+        if (prevBtn) {
+            prevBtn.disabled = currentPage <= 1;
+        }
+        if (nextBtn) {
+            nextBtn.disabled = currentPage >= totalPages || expenses.length === 0;
+        }
     } catch (err) {
         console.error("Error fetching expenses:", err);
     }
@@ -128,13 +176,13 @@ form.addEventListener("submit", async (e) => {
     };
 
     try {
-        const response = await axios.post("/api/expenses", expenseData, {
+        await axios.post("/api/expenses", expenseData, {
             headers: {
                 "user-email": email || "",
                 "user-id": userId || "",
             },
         });
-        addExpenseToTable(response.data);
+        await fetchExpenses(currentPage);
         form.reset();
     } catch (err) {
         console.error("Error adding expense:", err);
@@ -168,10 +216,7 @@ async function deleteExpense(id) {
                 "user-id": userId || "",
             },
         });
-        const row = document.getElementById(`expense-${id}`);
-        if (row) {
-            row.remove();
-        }
+        await fetchExpenses(currentPage);
     } catch (err) {
         console.error("Error deleting expense:", err);
         alert("Failed to delete expense");

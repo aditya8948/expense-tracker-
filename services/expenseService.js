@@ -20,9 +20,37 @@ const getUserIdFromRequest = async (req) => {
     return null;
 };
 
-const getExpenses = async (userId) => {
+const getExpenses = async (userId, page, limit) => {
     const whereClause = userId ? { userId } : {};
-    return await Expense.findAll({ where: whereClause });
+
+    if (page !== undefined && limit !== undefined) {
+        const pageNum = Math.max(1, parseInt(page) || 1);
+        const limitNum = Math.max(1, parseInt(limit) || 5);
+        const offset = (pageNum - 1) * limitNum;
+
+        const { count, rows } = await Expense.findAndCountAll({
+            where: whereClause,
+            offset: offset,
+            limit: limitNum,
+            order: [["createdAt", "DESC"]],
+        });
+
+        const totalPages = Math.ceil(count / limitNum) || 1;
+
+        return {
+            expenses: rows,
+            totalExpenses: count,
+            currentPage: pageNum,
+            totalPages: totalPages,
+            hasNextPage: pageNum < totalPages,
+            nextPage: pageNum + 1,
+            hasPreviousPage: pageNum > 1,
+            previousPage: pageNum - 1,
+            lastPage: totalPages,
+        };
+    }
+
+    return await Expense.findAll({ where: whereClause, order: [["createdAt", "DESC"]] });
 };
 
 const createExpense = async ({ amount, description, category, userId }) => {

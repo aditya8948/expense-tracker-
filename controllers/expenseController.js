@@ -3,7 +3,10 @@ const expenseService = require("../services/expenseService");
 exports.getExpenses = async (req, res) => {
     try {
         const userId = await expenseService.getUserIdFromRequest(req);
-        const expenses = await expenseService.getExpenses(userId);
+        const { page, limit, itemsPerPage } = req.query;
+        const perPage = limit || itemsPerPage;
+
+        const expenses = await expenseService.getExpenses(userId, page, perPage);
         res.status(200).json(expenses);
     } catch (err) {
         console.error("Error fetching expenses:", err.message);
