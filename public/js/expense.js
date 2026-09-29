@@ -67,11 +67,22 @@ async function checkPremiumStatus() {
 }
 
 let currentPage = 1;
-const itemsPerPage = 5;
+let itemsPerPage = parseInt(localStorage.getItem("itemsPerPage")) || 5;
 
+const itemsPerPageSelect = document.getElementById("itemsPerPage");
 const prevBtn = document.getElementById("prevBtn");
 const nextBtn = document.getElementById("nextBtn");
 const pageInfo = document.getElementById("pageInfo");
+
+if (itemsPerPageSelect) {
+    itemsPerPageSelect.value = itemsPerPage;
+    itemsPerPageSelect.addEventListener("change", (e) => {
+        itemsPerPage = parseInt(e.target.value);
+        localStorage.setItem("itemsPerPage", itemsPerPage);
+        currentPage = 1;
+        fetchExpenses(1);
+    });
+}
 
 if (prevBtn) {
     prevBtn.addEventListener("click", () => {
@@ -134,10 +145,16 @@ async function fetchExpenses(page = currentPage) {
             },
         });
 
-        tableBody.innerHTML = "";
-
         const expenses = Array.isArray(response.data) ? response.data : (response.data.expenses || []);
         const totalPages = response.data.totalPages || 1;
+
+        // Edge case fallback: if current page has no expenses and currentPage > 1, step back to previous page
+        if (expenses.length === 0 && currentPage > 1) {
+            currentPage--;
+            return await fetchExpenses(currentPage);
+        }
+
+        tableBody.innerHTML = "";
 
         if (expenses.length === 0) {
             tableBody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #888;">No expenses found.</td></tr>`;
@@ -182,7 +199,8 @@ form.addEventListener("submit", async (e) => {
                 "user-id": userId || "",
             },
         });
-        await fetchExpenses(currentPage);
+        currentPage = 1;
+        await fetchExpenses(1);
         form.reset();
     } catch (err) {
         console.error("Error adding expense:", err);
@@ -216,6 +234,13 @@ async function deleteExpense(id) {
                 "user-id": userId || "",
             },
         });
+
+        // Edge case: if we just deleted the only item on the current page, go back to previous page
+        const expenseRows = tableBody.querySelectorAll("tr[id^='expense-']");
+        if (expenseRows.length <= 1 && currentPage > 1) {
+            currentPage--;
+        }
+
         await fetchExpenses(currentPage);
     } catch (err) {
         console.error("Error deleting expense:", err);

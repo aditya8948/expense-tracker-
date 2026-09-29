@@ -309,10 +309,26 @@
 
         .pagination-container {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             margin-top: 15px;
             padding: 8px 0;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .rows-per-page {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #495057;
+        }
+
+        .rows-per-page select {
+            width: auto;
+            padding: 4px 8px;
+            font-size: 13px;
         }
 
         .pagination-buttons {
@@ -417,8 +433,17 @@
             </tbody>
         </table>
 
-        <!-- Simple Pagination Controls -->
+        <!-- Simple Dynamic Pagination Controls -->
         <div class="pagination-container" id="paginationContainer">
+            <div class="rows-per-page">
+                <label for="itemsPerPage">Expenses per page:</label>
+                <select id="itemsPerPage">
+                    <option value="2">2</option>
+                    <option value="5" selected>5</option>
+                    <option value="10">10</option>
+                    <option value="20">20</option>
+                </select>
+            </div>
             <div class="pagination-buttons">
                 <button id="prevBtn" type="button" class="page-btn">Previous</button>
                 <span id="pageInfo" class="page-info">1</span>
