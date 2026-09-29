@@ -102,6 +102,76 @@
             background-color: #c82333;
         }
 
+        .report-btn {
+            padding: 6px 14px;
+            cursor: pointer;
+            background-color: #0097a7;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .report-btn:hover {
+            background-color: #00838f;
+        }
+
+        .report-btn.non-premium {
+            background-color: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        .btn-tooltip-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .premium-tooltip-btn {
+            display: none;
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #212529;
+            color: #ffc107;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .btn-tooltip-wrapper:hover .premium-tooltip-btn.visible {
+            display: block;
+        }
+
+        .download-btn {
+            padding: 6px 14px;
+            cursor: pointer;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .download-btn:hover {
+            background-color: #218838;
+        }
+
+        .download-btn:disabled {
+            background-color: #6c757d;
+            opacity: 0.65;
+            cursor: not-allowed;
+        }
+
         form {
             background-color: #fafafa;
             border: 1px solid #e5e5e5;
@@ -245,6 +315,11 @@
             <h2>Expense Tracker</h2>
             <div class="header-actions">
                 <div id="premiumHeadline" class="premium-headline" style="display: none;">You are a premium user now</div>
+                <div class="btn-tooltip-wrapper">
+                    <button id="reportsBtn" type="button" class="report-btn non-premium">Day to Day Report</button>
+                    <div id="reportTooltip" class="premium-tooltip-btn visible">🔒 Buy Premium</div>
+                </div>
+                <button id="downloadExpensesBtn" class="download-btn" disabled title="Disabled for non-premium user">Download Expenses</button>
                 <button id="showLeaderboardBtn" class="leaderboard-btn" style="display: none;">Show Leaderboard</button>
                 <button id="buyPremiumBtn" class="premium-btn">Buy Premium Membership</button>
                 <button id="logoutBtn" class="logout-btn">Logout</button>

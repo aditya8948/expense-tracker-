@@ -20,6 +20,10 @@ function showPremiumUserUI() {
     const buyPremiumBtn = document.getElementById("buyPremiumBtn");
     const premiumHeadline = document.getElementById("premiumHeadline");
     const showLeaderboardBtn = document.getElementById("showLeaderboardBtn");
+    const downloadExpensesBtn = document.getElementById("downloadExpensesBtn");
+    const reportsBtn = document.getElementById("reportsBtn");
+    const reportTooltip = document.getElementById("reportTooltip");
+
     if (buyPremiumBtn) {
         buyPremiumBtn.style.display = "none";
     }
@@ -28,6 +32,17 @@ function showPremiumUserUI() {
     }
     if (showLeaderboardBtn) {
         showLeaderboardBtn.style.display = "inline-block";
+    }
+    if (downloadExpensesBtn) {
+        downloadExpensesBtn.disabled = false;
+        downloadExpensesBtn.title = "Download your expenses";
+    }
+    if (reportsBtn) {
+        reportsBtn.classList.remove("non-premium");
+        reportsBtn.title = "View Day to Day Reports";
+    }
+    if (reportTooltip) {
+        reportTooltip.classList.remove("visible");
     }
 }
 
@@ -259,5 +274,59 @@ if (suggestCategoryBtn && descriptionInput && categorySelect) {
             suggestCategoryBtn.innerText = originalText;
             suggestCategoryBtn.disabled = false;
         }
+    });
+}
+
+const downloadExpensesBtn = document.getElementById("downloadExpensesBtn");
+
+if (downloadExpensesBtn) {
+    downloadExpensesBtn.addEventListener("click", async () => {
+        const isPremium = localStorage.getItem("isPremiumUser") === "true";
+        if (!isPremium) {
+            alert("Download is disabled for non-premium users!");
+            return;
+        }
+
+        const email = localStorage.getItem("userEmail");
+        const userId = localStorage.getItem("userId");
+
+        try {
+            const response = await axios.get("/api/expenses", {
+                params: { email, userId },
+                headers: {
+                    "user-email": email || "",
+                    "user-id": userId || "",
+                },
+            });
+
+            const expenses = response.data || [];
+            let csvContent = "data:text/csv;charset=utf-8,Amount,Description,Category\n";
+            expenses.forEach((exp) => {
+                csvContent += `${exp.amount},"${exp.description}","${exp.category}"\n`;
+            });
+
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", "my_expenses.csv");
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (err) {
+            console.error("Error exporting expenses:", err);
+            alert("Failed to download expenses");
+        }
+    });
+}
+
+const reportsBtn = document.getElementById("reportsBtn");
+if (reportsBtn) {
+    reportsBtn.addEventListener("click", () => {
+        const isPremium = localStorage.getItem("isPremiumUser") === "true";
+        if (!isPremium) {
+            alert("Day to Day Reports are only for Premium Users! Please buy premium membership.");
+            return;
+        }
+        window.location.href = "/reports";
     });
 }

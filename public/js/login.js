@@ -19,7 +19,6 @@ form.addEventListener("submit", async (e) => {
         if (response.status === 200) {
             messageDiv.className = "success";
             messageDiv.innerText = response.data.message;
-            alert(response.data.message);
 
             localStorage.setItem("isLoggedIn", "true");
             localStorage.setItem("userEmail", email);
@@ -31,9 +30,8 @@ form.addEventListener("submit", async (e) => {
         }
     } catch (err) {
         messageDiv.className = "error";
-        if (err.response) {
+        if (err.response && err.response.data && err.response.data.message) {
             messageDiv.innerText = err.response.data.message;
-            alert(err.response.data.message);
         } else {
             messageDiv.innerText = `Error: ${err.message}`;
         }

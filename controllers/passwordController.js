@@ -5,20 +5,6 @@ const ForgotPasswordRequest = require("../models/forgotPasswordRequest");
 const userService = require("../services/userService");
 const passwordService = require("../services/passwordService");
 
-const os = require("os");
-
-function getLocalIp() {
-    const interfaces = os.networkInterfaces();
-    for (const name of Object.keys(interfaces)) {
-        for (const iface of interfaces[name]) {
-            if (iface.family === "IPv4" && !iface.internal) {
-                return iface.address;
-            }
-        }
-    }
-    return "localhost";
-}
-
 exports.forgotPassword = async (req, res) => {
     try {
         const { email } = req.body;
@@ -42,18 +28,10 @@ exports.forgotPassword = async (req, res) => {
             isActive: true,
         });
 
-        // Build reset URL: use BASE_URL or local network IP so mobile on same Wi-Fi can open it
-        let resetUrl;
-        if (process.env.BASE_URL) {
-            resetUrl = `${process.env.BASE_URL}/password/resetpassword/${id}`;
-        } else {
-            let host = req.get("host") || "localhost:3001";
-            if (host.startsWith("localhost") || host.startsWith("127.0.0.1")) {
-                const port = host.split(":")[1] || "3001";
-                host = `${getLocalIp()}:${port}`;
-            }
-            resetUrl = `${req.protocol}://${host}/password/resetpassword/${id}`;
-        }
+        // Build reset URL
+        const host = req.get("host");
+        const protocol = req.protocol;
+        const resetUrl = `${protocol}://${host}/password/resetpassword/${id}`;
 
         // Send reset email with URL
         await passwordService.sendForgotPasswordMail(email, resetUrl);

@@ -48,6 +48,14 @@ app.get("/expense", (req, res) => {
     res.sendFile(path.join(__dirname, "views", "expense.html"));
 });
 
+app.get("/reports", (req, res) => {
+    res.sendFile(path.join(__dirname, "views", "report.html"));
+});
+
+app.get("/report", (req, res) => {
+    res.sendFile(path.join(__dirname, "views", "report.html"));
+});
+
 app.get("/Login/login.html", (req, res) => {
     res.redirect("/login");
 });

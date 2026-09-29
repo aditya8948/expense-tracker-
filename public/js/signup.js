@@ -20,15 +20,15 @@ form.addEventListener("submit", async (e) => {
         const response = await axios.post("/user/signup", userDetails);
         if (response.status === 201) {
             messageDiv.className = "success";
-            messageDiv.innerText = response.data.message;
-            alert(response.data.message);
-            window.location.href = "/login";
+            messageDiv.innerText = response.data.message + ". Redirecting to login...";
+            setTimeout(() => {
+                window.location.href = "/login";
+            }, 600);
         }
     } catch (err) {
         messageDiv.className = "error";
-        if (err.response) {
+        if (err.response && err.response.data && err.response.data.message) {
             messageDiv.innerText = err.response.data.message;
-            alert(err.response.data.message);
         } else {
             messageDiv.innerText = `Error: ${err.message}`;
         }
