@@ -8,6 +8,7 @@ const userRoute = require("./routes/userRoute");
 const purchaseRoute = require("./routes/purchaseRoute");
 const premiumRoute = require("./routes/premiumRoute");
 const aiRoute = require("./routes/aiRoute");
+const passwordRoute = require("./routes/passwordRoute");
 
 const Expense = require("./models/expense");
 const User = require("./models/user");
@@ -61,13 +62,29 @@ app.use("/expense", expenseRoute);
 app.use("/purchase", purchaseRoute);
 app.use("/premium", premiumRoute);
 app.use("/ai", aiRoute);
+app.use("/password", passwordRoute);
+
+const PORT = process.env.PORT || 3000;
+
+function startServer(port) {
+    const server = app.listen(port, () => {
+        console.log(`Server running on http://localhost:${port}`);
+    });
+
+    server.on("error", (err) => {
+        if (err.code === "EADDRINUSE") {
+            console.log(`Port ${port} in use, trying ${Number(port) + 1}...`);
+            startServer(Number(port) + 1);
+        } else {
+            console.error("Server error:", err);
+        }
+    });
+}
 
 sequelize
     .sync()
     .then(() => {
-        app.listen(3000, () => {
-            console.log("Server running on http://localhost:3000");
-        });
+        startServer(PORT);
     })
     .catch((err) => {
         console.error("Database connection error:", err);
