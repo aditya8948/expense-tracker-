@@ -1,6 +1,6 @@
 const SibApiV3Sdk = require("sib-api-v3-sdk");
 
-exports.sendForgotPasswordMail = async (recipientEmail) => {
+exports.sendForgotPasswordMail = async (recipientEmail, resetUrl) => {
     const defaultClient = SibApiV3Sdk.ApiClient.instance;
     const apiKey = defaultClient.authentications["api-key"];
     apiKey.apiKey = process.env.SIB_API_KEY;
@@ -22,21 +22,20 @@ exports.sendForgotPasswordMail = async (recipientEmail) => {
         sender,
         to: receivers,
         subject: "Expense Tracker - Password Reset Request",
-        textContent: "Hello,\n\nYou requested to reset your password. This is a dummy email for password reset verification.\n\nThank you,\nExpense Tracker Team",
+        textContent: `Hello,\n\nYou requested to reset your password. Click the link below to set a new password:\n\n${resetUrl}\n\nIf you did not request this, you can ignore this email.\n\nThank you,\nExpense Tracker Team`,
         htmlContent: `
-            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 8px;">
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 25px; border: 1px solid #eaeaea; border-radius: 8px;">
                 <h2 style="color: #007bff; text-align: center;">Expense Tracker</h2>
-                <h3 style="color: #333;">Password Reset Request</h3>
+                <h3 style="color: #333;">Reset Your Password</h3>
                 <p>Hello,</p>
-                <p>We received a request to reset your password for your <strong>Expense Tracker</strong> account.</p>
-                <p>This is a verification email to confirm that your password reset request was received successfully.</p>
-                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #007bff;">
-                    <p style="margin: 0; color: #555;"><strong>Recipient Email:</strong> ${recipientEmail}</p>
-                    <p style="margin: 5px 0 0 0; color: #555;"><strong>Status:</strong> Request recorded successfully.</p>
+                <p>We received a request to reset your password. Click the button below to choose a new password:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <a href="${resetUrl}" style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">Reset Password</a>
                 </div>
-                <p style="color: #777; font-size: 13px;">If you didn't request a password reset, you can safely ignore this email.</p>
+                <p style="font-size: 13px; color: #666;">Or copy and paste this link in your browser:</p>
+                <p style="font-size: 13px; word-break: break-all;"><a href="${resetUrl}">${resetUrl}</a></p>
                 <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
-                <p style="text-align: center; color: #999; font-size: 12px;">© 2026 Expense Tracker. All rights reserved.</p>
+                <p style="color: #999; font-size: 12px;">This link can only be used once. If you did not request a password reset, you can safely ignore this email.</p>
             </div>
         `,
     };

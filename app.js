@@ -13,12 +13,16 @@ const passwordRoute = require("./routes/passwordRoute");
 const Expense = require("./models/expense");
 const User = require("./models/user");
 const Order = require("./models/order");
+const ForgotPasswordRequest = require("./models/forgotPasswordRequest");
 
 User.hasMany(Expense);
 Expense.belongsTo(User);
 
 User.hasMany(Order);
 Order.belongsTo(User);
+
+User.hasMany(ForgotPasswordRequest);
+ForgotPasswordRequest.belongsTo(User);
 
 const app = express();
 
