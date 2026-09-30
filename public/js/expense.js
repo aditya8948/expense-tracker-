@@ -188,6 +188,7 @@ form.addEventListener("submit", async (e) => {
         amount: document.getElementById("amount").value,
         description: document.getElementById("description").value,
         category: document.getElementById("category").value,
+        note: document.getElementById("note".value),
         email: email,
         userId: userId,
     };

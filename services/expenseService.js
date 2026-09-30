@@ -53,7 +53,7 @@ const getExpenses = async (userId, page, limit) => {
     return await Expense.findAll({ where: whereClause, order: [["createdAt", "DESC"]] });
 };
 
-const createExpense = async ({ amount, description, category, userId }) => {
+const createExpense = async ({ amount, description, category, note, userId }) => {
     const t = await sequelize.transaction();
     try {
         const expense = await Expense.create(
@@ -61,6 +61,7 @@ const createExpense = async ({ amount, description, category, userId }) => {
                 amount,
                 description,
                 category,
+                note,
                 userId,
             },
             { transaction: t }

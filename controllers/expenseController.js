@@ -16,7 +16,7 @@ exports.getExpenses = async (req, res) => {
 
 exports.addExpense = async (req, res) => {
     try {
-        const { amount, description, category } = req.body;
+        const { amount, description, category, note } = req.body;
         const userId = await expenseService.getUserIdFromRequest(req);
 
         if (!userId) {
@@ -27,6 +27,7 @@ exports.addExpense = async (req, res) => {
             amount,
             description,
             category,
+            note,
             userId,
         });
         res.status(201).json(expense);

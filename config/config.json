@@ -1,0 +1,9 @@
+{
+    "development":{
+        "username": "root",
+        "password": "aditya89",
+        "database": "expense_tracker",
+        "host": "localhost",
+        "dialect": "mysql"
+    }
+}
