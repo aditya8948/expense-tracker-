@@ -1,6 +1,6 @@
 const Expense = require("../models/expense");
 const User = require("../models/user");
-const sequelize = require("../util/database");
+const sequelize = require("../config/database");
 
 const getUserIdFromRequest = async (req) => {
     if (req.user && req.user.id) {

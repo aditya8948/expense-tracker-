@@ -2,9 +2,10 @@ const axios = require("axios");
 const Order = require("../models/order");
 const User = require("../models/user");
 
-const CASHFREE_APP_ID = "TEST430329ae80e0f32e41a393d78b923034";
-const CASHFREE_SECRET_KEY = "TESTaf195616268bd6202eeb3bf8dc458956e7192a85";
-const CASHFREE_API_URL = "https://sandbox.cashfree.com/pg/orders";
+const CASHFREE_APP_ID = process.env.CASHFREE_APP_ID;
+const CASHFREE_SECRET_KEY = process.env.CASHFREE_SECRET_KEY;
+const CASHFREE_API_URL = process.env.CASHFREE_API_URL;
+
 
 const createCashfreeOrder = async (email) => {
     const user = await User.findOne({ where: { email } });

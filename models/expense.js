@@ -1,5 +1,5 @@
 const Sequelize = require("sequelize");
-const sequelize = require("../util/database");
+const sequelize = require("../config/database");
 
 const Expense = sequelize.define("expense", {
     id: {

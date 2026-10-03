@@ -1,8 +1,9 @@
 require("dotenv").config();
 const express = require("express");
+const {requestLogger, errorLogger} = require("./middleware");
 const path = require("path");
 const cors = require("cors");
-const sequelize = require("./util/database");
+const sequelize = require("./config/database");
 const expenseRoute = require("./routes/expenseRoute");
 const userRoute = require("./routes/userRoute");
 const purchaseRoute = require("./routes/purchaseRoute");
@@ -25,6 +26,8 @@ User.hasMany(ForgotPasswordRequest);
 ForgotPasswordRequest.belongsTo(User);
 
 const app = express();
+app.use(requestLogger);
+
 
 app.use(cors());
 app.use(express.json());
@@ -75,6 +78,8 @@ app.use("/purchase", purchaseRoute);
 app.use("/premium", premiumRoute);
 app.use("/ai", aiRoute);
 app.use("/password", passwordRoute);
+
+app.use(errorLogger);
 
 const PORT = process.env.PORT || 3000;
 
