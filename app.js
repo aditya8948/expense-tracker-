@@ -4,26 +4,10 @@ const {requestLogger, errorLogger} = require("./middleware");
 const path = require("path");
 const cors = require("cors");
 const sequelize = require("./config/database");
-const expenseRoute = require("./routes/expenseRoute");
-const userRoute = require("./routes/userRoute");
-const purchaseRoute = require("./routes/purchaseRoute");
-const premiumRoute = require("./routes/premiumRoute");
-const aiRoute = require("./routes/aiRoute");
-const passwordRoute = require("./routes/passwordRoute");
+const routes = require("./routes");
 
-const Expense = require("./models/expense");
-const User = require("./models/user");
-const Order = require("./models/order");
-const ForgotPasswordRequest = require("./models/forgotPasswordRequest");
 
-User.hasMany(Expense);
-Expense.belongsTo(User);
-
-User.hasMany(Order);
-Order.belongsTo(User);
-
-User.hasMany(ForgotPasswordRequest);
-ForgotPasswordRequest.belongsTo(User);
+require("./models");
 
 const app = express();
 app.use(requestLogger);
@@ -71,13 +55,8 @@ app.get("/Expense/expense.html", (req, res) => {
     res.redirect("/expense");
 });
 
-app.use("/user", userRoute);
-app.use("/api/expenses", expenseRoute);
-app.use("/expense", expenseRoute);
-app.use("/purchase", purchaseRoute);
-app.use("/premium", premiumRoute);
-app.use("/ai", aiRoute);
-app.use("/password", passwordRoute);
+app.use(routes);
+
 
 app.use(errorLogger);
 
@@ -107,4 +86,4 @@ sequelize
         console.error("Database connection error:", err);
     });
 
-module.exports = app;
+

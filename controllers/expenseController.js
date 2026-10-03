@@ -2,7 +2,7 @@ const expenseService = require("../services/expenseService");
 
 exports.getExpenses = async (req, res) => {
     try {
-        const userId = await expenseService.getUserIdFromRequest(req);
+        const userId = req.user.id;
         const { page, limit, itemsPerPage } = req.query;
         const perPage = limit || itemsPerPage;
 
@@ -17,7 +17,7 @@ exports.getExpenses = async (req, res) => {
 exports.addExpense = async (req, res) => {
     try {
         const { amount, description, category, note } = req.body;
-        const userId = await expenseService.getUserIdFromRequest(req);
+        const userId = req.user.id;
 
         if (!userId) {
             return res.status(400).json({ message: "User identification required to add expense" });
@@ -40,7 +40,7 @@ exports.addExpense = async (req, res) => {
 exports.deleteExpense = async (req, res) => {
     try {
         const id = req.params.id;
-        const userId = await expenseService.getUserIdFromRequest(req);
+        const userId = req.user.id;
 
         const deleted = await expenseService.deleteExpense(id, userId);
         if (!deleted) {
