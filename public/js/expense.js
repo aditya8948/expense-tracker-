@@ -20,7 +20,6 @@ function showPremiumUserUI() {
     const buyPremiumBtn = document.getElementById("buyPremiumBtn");
     const premiumHeadline = document.getElementById("premiumHeadline");
     const showLeaderboardBtn = document.getElementById("showLeaderboardBtn");
-    const downloadExpensesBtn = document.getElementById("downloadExpensesBtn");
     const reportsBtn = document.getElementById("reportsBtn");
     const reportTooltip = document.getElementById("reportTooltip");
 
@@ -32,10 +31,6 @@ function showPremiumUserUI() {
     }
     if (showLeaderboardBtn) {
         showLeaderboardBtn.style.display = "inline-block";
-    }
-    if (downloadExpensesBtn) {
-        downloadExpensesBtn.disabled = false;
-        downloadExpensesBtn.title = "Download your expenses";
     }
     if (reportsBtn) {
         reportsBtn.classList.remove("non-premium");
@@ -294,7 +289,14 @@ const leaderboardTableBody = document.getElementById("leaderboardTableBody");
 if (showLeaderboardBtn) {
     showLeaderboardBtn.addEventListener("click", async () => {
         try {
-            const response = await axios.get("/premium/showLeaderboard");
+            const email = localStorage.getItem("userEmail");
+            const userId = localStorage.getItem("userId");
+            const response = await axios.get("/premium/showLeaderboard", {
+                headers: {
+                    "user-email": email || "",
+                    "user-id": userId || "",
+                },
+            });
             if (leaderboardTableBody) {
                 leaderboardTableBody.innerHTML = "";
                 response.data.forEach((user, index) => {
@@ -312,7 +314,7 @@ if (showLeaderboardBtn) {
             }
         } catch (err) {
             console.error("Error loading leaderboard:", err);
-            alert("Failed to load leaderboard");
+            alert(err.response?.data?.message || "Failed to load leaderboard");
         }
     });
 }
@@ -344,48 +346,6 @@ if (suggestCategoryBtn && descriptionInput && categorySelect) {
         } finally {
             suggestCategoryBtn.innerText = originalText;
             suggestCategoryBtn.disabled = false;
-        }
-    });
-}
-
-const downloadExpensesBtn = document.getElementById("downloadExpensesBtn");
-
-if (downloadExpensesBtn) {
-    downloadExpensesBtn.addEventListener("click", async () => {
-        const isPremium = localStorage.getItem("isPremiumUser") === "true";
-        if (!isPremium) {
-            alert("Download is disabled for non-premium users!");
-            return;
-        }
-
-        const email = localStorage.getItem("userEmail");
-        const userId = localStorage.getItem("userId");
-
-        try {
-            const response = await axios.get("/api/expenses", {
-                params: { email, userId },
-                headers: {
-                    "user-email": email || "",
-                    "user-id": userId || "",
-                },
-            });
-
-            const expenses = response.data || [];
-            let csvContent = "data:text/csv;charset=utf-8,Amount,Description,Category\n";
-            expenses.forEach((exp) => {
-                csvContent += `${exp.amount},"${exp.description}","${exp.category}"\n`;
-            });
-
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", "my_expenses.csv");
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } catch (err) {
-            console.error("Error exporting expenses:", err);
-            alert("Failed to download expenses");
         }
     });
 }

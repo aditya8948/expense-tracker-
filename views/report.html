@@ -71,14 +71,16 @@
             color: #333;
         }
 
-        select {
+        select,
+        input[type="month"] {
             padding: 6px 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
             font-size: 14px;
         }
 
-        select:focus {
+        select:focus,
+        input[type="month"]:focus {
             border-color: #007bff;
             outline: none;
         }
@@ -191,10 +193,13 @@
             <div class="filter-group">
                 <label for="periodSelect">Filter:</label>
                 <select id="periodSelect">
-                    <option value="monthly">Monthly Expenses (This Month)</option>
-                    <option value="daily">Daily Expenses (Today)</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="daily">Daily (Today)</option>
                     <option value="all">All Expenses</option>
                 </select>
+                <input type="month" id="monthInput">
+                <select id="yearSelect" style="display: none;"></select>
             </div>
 
             <div class="download-wrapper">
@@ -231,11 +236,18 @@
         let allExpenses = [];
 
         const periodSelect = document.getElementById("periodSelect");
+        const monthInput = document.getElementById("monthInput");
+        const yearSelect = document.getElementById("yearSelect");
         const downloadBtn = document.getElementById("downloadBtn");
         const tooltip = document.getElementById("tooltip");
         const tableBody = document.getElementById("expenseTableBody");
         const totalRow = document.getElementById("totalRow");
         const totalAmountEl = document.getElementById("totalAmount");
+
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = String(now.getMonth() + 1).padStart(2, "0");
+        monthInput.value = `${currentYear}-${currentMonth}`;
 
         const isPremium = localStorage.getItem("isPremiumUser") === "true";
         if (!isPremium) {
@@ -246,7 +258,6 @@
         const email = localStorage.getItem("userEmail") || "";
         const userId = localStorage.getItem("userId") || "";
 
-        // Check premium status for download button
         if (isPremium) {
             downloadBtn.classList.remove("non-premium");
             downloadBtn.innerText = "Download Report (CSV)";
@@ -257,7 +268,42 @@
             tooltip.classList.add("visible");
         }
 
-        // Fetch real user expenses from backend API
+        function populateYears() {
+            const years = new Set();
+            years.add(currentYear);
+            allExpenses.forEach(exp => {
+                if (exp.createdAt) {
+                    const y = new Date(exp.createdAt).getFullYear();
+                    if (!isNaN(y)) years.add(y);
+                }
+            });
+
+            const sortedYears = Array.from(years).sort((a, b) => b - a);
+            yearSelect.innerHTML = "";
+            sortedYears.forEach(y => {
+                const opt = document.createElement("option");
+                opt.value = y;
+                opt.innerText = y;
+                yearSelect.appendChild(opt);
+            });
+            yearSelect.value = currentYear;
+        }
+
+        function handleFilterTypeChange() {
+            const filter = periodSelect.value;
+            if (filter === "monthly") {
+                monthInput.style.display = "inline-block";
+                yearSelect.style.display = "none";
+            } else if (filter === "yearly") {
+                monthInput.style.display = "none";
+                yearSelect.style.display = "inline-block";
+            } else {
+                monthInput.style.display = "none";
+                yearSelect.style.display = "none";
+            }
+            renderTable();
+        }
+
         async function fetchExpenses() {
             try {
                 const response = await axios.get("/api/expenses", {
@@ -269,30 +315,40 @@
                 });
 
                 allExpenses = response.data || [];
-                renderTable();
+                populateYears();
+                handleFilterTypeChange();
             } catch (err) {
                 console.error("Error fetching expenses:", err);
                 tableBody.innerHTML = `<tr><td colspan="4" class="empty-message">Failed to load expenses.</td></tr>`;
             }
         }
 
-        // Filter and display expenses
-        function renderTable() {
+        
+        function getFilteredExpenses() {
             const filter = periodSelect.value;
-            const now = new Date();
+            const todayStr = new Date().toDateString();
 
-            const filtered = allExpenses.filter(exp => {
+            return allExpenses.filter(exp => {
                 if (filter === "all") return true;
 
                 const expDate = new Date(exp.createdAt || exp.updatedAt || Date.now());
 
                 if (filter === "daily") {
-                    return expDate.toDateString() === now.toDateString();
+                    return expDate.toDateString() === todayStr;
                 } else if (filter === "monthly") {
-                    return expDate.getMonth() === now.getMonth() && expDate.getFullYear() === now.getFullYear();
+                    if (!monthInput.value) return true;
+                    const [selYear, selMonth] = monthInput.value.split("-").map(Number);
+                    return expDate.getFullYear() === selYear && (expDate.getMonth() + 1) === selMonth;
+                } else if (filter === "yearly") {
+                    const selYear = Number(yearSelect.value);
+                    return expDate.getFullYear() === selYear;
                 }
                 return true;
             });
+        }
+
+        function renderTable() {
+            const filtered = getFilteredExpenses();
 
             tableBody.innerHTML = "";
 
@@ -329,7 +385,9 @@
             totalRow.style.display = "table-row";
         }
 
-        periodSelect.addEventListener("change", renderTable);
+        periodSelect.addEventListener("change", handleFilterTypeChange);
+        monthInput.addEventListener("change", renderTable);
+        yearSelect.addEventListener("change", renderTable);
 
         // Download button click handling
         downloadBtn.addEventListener("click", () => {
@@ -339,16 +397,7 @@
                 return;
             }
 
-            const filter = periodSelect.value;
-            const now = new Date();
-
-            const filtered = allExpenses.filter(exp => {
-                if (filter === "all") return true;
-                const expDate = new Date(exp.createdAt || exp.updatedAt || Date.now());
-                if (filter === "daily") return expDate.toDateString() === now.toDateString();
-                if (filter === "monthly") return expDate.getMonth() === now.getMonth() && expDate.getFullYear() === now.getFullYear();
-                return true;
-            });
+            const filtered = getFilteredExpenses();
 
             if (filtered.length === 0) {
                 alert("No expenses to download.");
@@ -362,10 +411,15 @@
                 csvContent += `${dateStr},"${exp.description}","${exp.category}",${exp.amount}\n`;
             });
 
+            const filter = periodSelect.value;
+            let fileTag = filter;
+            if (filter === "monthly") fileTag = monthInput.value || "monthly";
+            if (filter === "yearly") fileTag = yearSelect.value || "yearly";
+
             const encodedUri = encodeURI(csvContent);
             const link = document.createElement("a");
             link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `expenses_${filter}_report.csv`);
+            link.setAttribute("download", `expenses_${fileTag}_report.csv`);
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
